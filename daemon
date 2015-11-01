@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prefix-file", metavar="PATH", type=str, required=True, help="path to prefix list that will be monitored")
-    parser.add_argument("--community", metavar="COMMUNITY", type=str, default="", help="community to be attached to announced prefixes, defaults to no community')
+    parser.add_argument("--community", metavar="COMMUNITY", type=str, default="", help="community to be attached to announced prefixes, defaults to no community")
     parser.add_argument("--next-hop", metavar="IP", type=str, default="192.0.2.1", help="next-hop to be attached to announced prefixes, defaults to 192.0.2.1")
     parser.add_argument("--interval", metavar="SECONDS", type=int, default=5, help="polling interval in seconds, defaults to 5")
     args = parser.parse_args()
