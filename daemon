@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+
+"""
+Monitor a file for additions and removals of IP addresses. Output these changes to stdout in a format suitable for ExaBGP.
+
+Michael Fincham <michael.fincham@catalyst.net.nz>
+"""
+
+import argparse
+import re
+import socket
+import sys
+import time
+ 
+def validate_ip_addresses(addresses):
+    """
+    Lazy way to validate a list of IPv4 addresses. Returns a list of valid addresses.
+    """
+    
+    valid = []
+
+    for address in addresses:
+        try:
+            socket.inet_aton(address)
+        except:
+            pass
+        else:
+            valid.append(address)
+
+    return valid
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--prefix-file', metavar="PATH", type=str, required=True, help='path to prefix list that will be monitored')
+    parser.add_argument('--community', metavar="COMMUNITY", type=str, default="", help='community to be attached to announced prefixes, defaults to no community')
+    parser.add_argument('--next-hop', metavar="IP", type=str, default="192.0.2.1", help="next-hop to be attached to announced prefixes, defaults to 192.0.2.1")
+    parser.add_argument('--interval', metavar="SECONDS", type=int, default=5, help='polling interval in seconds, defaults to 5')
+    args = parser.parse_args()
+
+    current_prefixes = set()
+    community = ""
+
+    if args.community is not "":
+    
+        if re.match("[0-9]+:[0-9]+", args.community):
+            community = " community %s" % args.community
+        else:
+            sys.stderr.write("error: invalid community string\n")
+            sys.exit(1)
+
+    while True:
+        time.sleep(5)
+        
+        try:
+            with open(args.prefix_file) as prefix_file:
+                requested_prefixes = set(validate_ip_addresses(prefix_file.read().splitlines()))
+        except:
+            continue
+
+        prefix = None
+
+        for prefix in current_prefixes - requested_prefixes: # prefixes to remove
+            sys.stdout.write("withdraw route %s next-hop %s%s\n" % (prefix, args.next_hop, community))
+
+        for prefix in requested_prefixes - current_prefixes: # prefixes to add
+            sys.stdout.write("announce route %s next-hop %s%s\n" % (prefix, args.next_hop, community))
+
+        if prefix is not None:
+            sys.stdout.flush()
+            current_prefixes = requested_prefixes
