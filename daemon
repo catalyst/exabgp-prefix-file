@@ -61,10 +61,10 @@ if __name__ == "__main__":
         prefix = None
 
         for prefix in current_prefixes - requested_prefixes: # prefixes to remove
-            sys.stdout.write("withdraw route %s next-hop %s%s\n" % (prefix, args.next_hop, community))
+            sys.stdout.write("withdraw route %s/32 next-hop %s%s\n" % (prefix, args.next_hop, community))
 
         for prefix in requested_prefixes - current_prefixes: # prefixes to add
-            sys.stdout.write("announce route %s next-hop %s%s\n" % (prefix, args.next_hop, community))
+            sys.stdout.write("announce route %s/32 next-hop %s%s\n" % (prefix, args.next_hop, community))
 
         if prefix is not None:
             sys.stdout.flush()
