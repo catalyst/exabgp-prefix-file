@@ -12,30 +12,25 @@ import socket
 import sys
 import time
  
-def validate_ip_addresses(addresses):
+def valid_ip_address(address):
     """
-    Lazy way to validate a list of IPv4 addresses. Returns a list of valid addresses.
+    Lazy way to validate an IPv4 address.
     """
-    
-    valid = []
+    try:
+        socket.inet_aton(address)
+    except:
+        return False
+    else:
+        return True
 
-    for address in addresses:
-        try:
-            socket.inet_aton(address)
-        except:
-            pass
-        else:
-            valid.append(address)
-
-    return valid
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--prefix-file', metavar="PATH", type=str, required=True, help='path to prefix list that will be monitored')
-    parser.add_argument('--community', metavar="COMMUNITY", type=str, default="", help='community to be attached to announced prefixes, defaults to no community')
-    parser.add_argument('--next-hop', metavar="IP", type=str, default="192.0.2.1", help="next-hop to be attached to announced prefixes, defaults to 192.0.2.1")
-    parser.add_argument('--interval', metavar="SECONDS", type=int, default=5, help='polling interval in seconds, defaults to 5')
+    parser.add_argument("--prefix-file", metavar="PATH", type=str, required=True, help="path to prefix list that will be monitored")
+    parser.add_argument("--community", metavar="COMMUNITY", type=str, default="", help="community to be attached to announced prefixes, defaults to no community')
+    parser.add_argument("--next-hop", metavar="IP", type=str, default="192.0.2.1", help="next-hop to be attached to announced prefixes, defaults to 192.0.2.1")
+    parser.add_argument("--interval", metavar="SECONDS", type=int, default=5, help="polling interval in seconds, defaults to 5")
     args = parser.parse_args()
 
     current_prefixes = set()
@@ -49,12 +44,17 @@ if __name__ == "__main__":
             sys.stderr.write("error: invalid community string\n")
             sys.exit(1)
 
+    if not valid_ip_address(args.next_hop):
+        sys.stderr.write("error: invalid next-hop address\n")
+        sys.exit(1)
+
+
     while True:
         time.sleep(5)
         
         try:
             with open(args.prefix_file) as prefix_file:
-                requested_prefixes = set(validate_ip_addresses(prefix_file.read().splitlines()))
+                requested_prefixes = set([address for address in prefix_file.read().splitlines() if valid_ip_address(address)])
         except:
             continue
 
