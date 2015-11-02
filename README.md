@@ -28,7 +28,7 @@ usage: daemon [-h] --prefix-file PATH [--community COMMUNITY] [--next-hop IP]
 
 Monitor a file for additions and removals of IP addresses. Output these
 changes to stdout in a format suitable for ExaBGP. Michael Fincham
-<michael.fincham@catalyst.net.nz>
+&lt;michael.fincham@catalyst.net.nz&gt;
 
 optional arguments:
   -h, --help            show this help message and exit
