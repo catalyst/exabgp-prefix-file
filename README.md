@@ -20,6 +20,12 @@ neighbor 127.0.0.1 {
 }
 </pre>
 
+Then ensure that <tt>/path/to/prefixes</tt> contains a list of addresses to be advertised with comments:
+
+<pre>
+192.0.2.1 Mon Nov  2 13:18:21 NZDT 2015 - Being attacked by DDoS
+</pre>
+
 The options for the daemon are as follows:
 
 <pre>
